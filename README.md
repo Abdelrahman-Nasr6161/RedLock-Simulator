@@ -15,7 +15,7 @@ First run the redis server.
 
 make sure docker is installed then run.
 
-> `docker compose`
+> `docker compose up`
 
 then run
 
