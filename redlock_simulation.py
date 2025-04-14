@@ -2,7 +2,7 @@ import redis
 import time
 import uuid
 import multiprocessing
-client_processes_waiting = [0, 1, 1, 1, 6]
+client_processes_waiting = [6, 1, 2, 1, 0]
 
 class Redlock:
     def __init__(self, redis_nodes):
@@ -24,13 +24,11 @@ class Redlock:
                     lock_acquired += 1
             except Exception as e:
                 pass
-        if lock_acquired >= 3:
+        if lock_acquired >= len(self.redis_nodes):
                 return True, lock_id
         else:
                 return False, None
-        
-        self.release_lock(resource, lock_id)  # Cleanup on failure
-        return False, None
+
 
     def release_lock(self, resource, lock_id):
         for connection in self.redis_nodes:
@@ -38,7 +36,7 @@ class Redlock:
                 if connection.get(resource) == lock_id:
                     connection.delete(resource)
             except Exception as e:
-                # Handle node failure safely
+                print("unexpected error occured")
                 pass
 
 def client_process(redis_nodes, resource, ttl, client_id):
